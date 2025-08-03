@@ -1,0 +1,11 @@
+﻿namespace DataProvider.Models
+{
+    public class ScriptGenerationHistory
+    {
+        public int Id { get; set; }
+        public int Quantity { get; set; }
+        public DatabaseDialect Dialect { get; set; } 
+        public DateTime RequestedAt { get; set; }
+
+    }
+}
