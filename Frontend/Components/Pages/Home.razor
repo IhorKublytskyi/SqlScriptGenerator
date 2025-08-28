@@ -1,0 +1,95 @@
+﻿@inject IScriptGenerationService ScriptGenerationService
+@inject IJSRuntime JSRuntime
+@inject GenerationState GenerationState;
+@inject ISnackbar Snackbar
+@page "/"
+
+<MudGrid Class="d-flex align-center justify-center" Style="height: 90vh;">
+    <MudItem xs="12" sm="8" md="6" lg="4">
+        <MudPaper Class="pa-16 ma-2 d-flex flex-column" Elevation="10" Style="height: 750px; width: 100%">
+            <MudText Typo="Typo.h5" Align="Align.Center" Style="font-weight:bold; font-size:35px;">Generate Your SQL Script</MudText>
+            <div class="flex-grow-1"></div>
+            <MudForm Spacing="10" @bind-IsValid="_isSuccess" @bind-Errors="_errors">
+                <MudNumericField 
+                    T="int" 
+                    @bind-Value="GenerationState.Quantity" 
+                    For="() => GenerationState.Quantity"
+                    HideSpinButtons="true" 
+                    Label="Quantity" 
+                    Required="true" 
+                    RequiredError="Quantity is required!" 
+                    Variant="Variant.Outlined"
+                    Validation="new Func<int, IEnumerable<string>>(ValidateQuantity)"/>
+
+                <MudSelect
+                    T="int"
+                    @bind-Value="GenerationState.Dialect"
+                    For="() => GenerationState.Dialect"
+                    Label="Dialect"
+                    Required="true"
+                    RequiredError="Dialect is required"
+                    Variant="Variant.Outlined"
+                    Validation="new Func<int, string>(ValidateDialect)">
+
+                    <MudSelectItem Value="-1">
+                        Choose an option
+                    </MudSelectItem>
+                    <MudSelectItem Value="0">
+                        @nameof(DatabaseDialect.Postgresql)
+                    </MudSelectItem>
+                    <MudSelectItem Value="1">
+                        @nameof(DatabaseDialect.MicrosoftSqlServer)
+                    </MudSelectItem>
+                </MudSelect>
+                <MudButton 
+                    StartIcon=@Icons.Material.Filled.Start 
+                    Variant="Variant.Filled" 
+                    Color="Color.Primary" 
+                    Style="height:50px; font-size:20px;" 
+                    OnClick="OnGenerateClick"
+                    Disabled="(!_isSuccess)">
+                    Generate
+                </MudButton>
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code
+{
+    private string[] _errors = { };
+    private bool _isSuccess;
+
+    private async Task OnGenerateClick()
+    {
+        try
+        {
+            _isSuccess = false;
+
+            var response = await ScriptGenerationService.GetScriptFileAsync(GenerationState.Quantity, GenerationState.Dialect);
+
+            await JSRuntime.InvokeVoidAsync("saveFile", "script.sql", response, "application/sql");
+
+            _isSuccess = true;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private IEnumerable<string> ValidateQuantity(int quantity)
+    {
+        if (quantity <= 0)
+            yield return "Quantity must be greater than 0";
+        if (quantity > 500000)
+            yield return "Max quantity is 500000";
+    }
+    private string ValidateDialect(int dialect)
+    {
+        if (dialect == -1)
+            return "You must choose an option";
+
+        return null;
+    }
+}

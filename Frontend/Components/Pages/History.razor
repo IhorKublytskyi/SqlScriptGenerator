@@ -1,0 +1,155 @@
+﻿@page "/history"
+@using Frontend.Validators
+@inject NavigationManager NavManager
+@inject IScriptGenerationService ScriptGenerationService
+@inject GenerationState GenerationState
+@inject QueryParametersValidator Validator
+
+
+<MudDataGrid @ref="_gridRef" ServerData="GetHistoriesAsync" T="ScriptGenerationHistory" SortMode="SortMode.Single" Filterable="true" FilterMode="DataGridFilterMode.Simple" >
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">History</MudText>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="h => h.RequestedAt" Title="Date" Sortable="true"/>
+        <PropertyColumn Property="h => h.Dialect" Sortable="true"/>
+        <PropertyColumn Property="h => h.Quantity" Sortable="true"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudButton Size="Size.Large" Variant="Variant.Filled" Color="Color.Primary" OnClick="() => OnUseButtonClick(context.Item)">Use again</MudButton>
+                    <MudButton Size="Size.Large" Variant="Variant.Filled" Color="Color.Secondary" OnClick="() => OnRemoveItemButtonClick(context.Item)">Remove</MudButton>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ScriptGenerationHistory"/>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Style="margin: 10px 5px 5px 5px;" OnClick="OnClearButtonClick">Clear history</MudButton>
+    </PagerContent>
+</MudDataGrid>
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <MudText Color="Color.Error">@ErrorMessage</MudText>
+}
+
+@code
+{
+    private MudDataGrid<ScriptGenerationHistory> _gridRef;
+
+    public List<ScriptGenerationHistory>? Histories { get; set; }
+
+    private int _pageNumber = 1;
+    private int _pageSize = 10;
+    private int _dialect = -1;
+    private DateTime? _dateTo = null;
+    private DateTime? _dateFrom = null;
+
+    private string? ErrorMessage;
+
+    private void OnUseButtonClick(ScriptGenerationHistory item)
+    {
+        GenerationState.Quantity = item.Quantity;
+        GenerationState.Dialect = (int)item.Dialect;
+
+        NavManager.NavigateTo("/");
+    }
+
+    private async Task<GridData<ScriptGenerationHistory>> GetHistoriesAsync(GridState<ScriptGenerationHistory> state)
+    {
+        QueryParameters queryParameters;
+
+        _pageNumber = state.Page + 1;
+        _pageSize = state.PageSize;
+
+        try
+        {
+            queryParameters = await BuildQuery(state);
+
+            var response = await ScriptGenerationService.GetHistoriesAsync(_pageNumber, _pageSize, queryParameters);
+
+            ErrorMessage = null;
+
+            return new GridData<ScriptGenerationHistory>()
+            {
+                Items = response.Items ?? new List<ScriptGenerationHistory>(),
+                TotalItems = response.TotalCount
+            };
+        }
+        catch (Exception e)
+        {
+            ErrorMessage = $"Ошибка: {e}";
+
+            return new GridData<ScriptGenerationHistory>()
+            {
+                Items = new List<ScriptGenerationHistory>(), 
+                TotalItems = 0
+            };
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async ValueTask<QueryParameters> BuildQuery(GridState<ScriptGenerationHistory> state)
+    {
+        var queryParameters = new QueryParameters();
+
+        var filterDefinitions = state.FilterDefinitions;
+
+        if (filterDefinitions != null)
+        {
+            foreach (var filter in filterDefinitions)
+            {
+                var filterOperator = filter.Operator;
+                if ($"{filter.Title} - {filterOperator}" == "Quantity - <" && filter.Value is not null)
+                    queryParameters.MaxQuantity = (int)(double)filter.Value;
+                else if ($"{filter.Title} - {filterOperator}" == "Quantity - >" && filter.Value is not null)
+                    queryParameters.MinQuantity = (int)(double)filter.Value;
+                else if ($"{filter.Title} - {filterOperator}" == "Date - is after" && filter.Value is not null)
+                    queryParameters.DateFrom = (DateTime)filter.Value;
+                else if ($"{filter.Title} - {filterOperator}" == "Date - is before" && filter.Value is not null)
+                    queryParameters.DateTo = (DateTime)filter.Value;
+                else if ($"{filter.Title} - {filterOperator}" == "Date - is" && filter.Value is not null)
+                    queryParameters.ExactDate = (DateTime)filter.Value;
+                else if ($"{filter.Title} - {filterOperator}" == "Dialect - is" && filter.Value is not null)
+                    queryParameters.Dialect = (int)filter.Value;
+            }
+        }
+
+        var validationResult = await Validator.ValidateAsync(queryParameters);
+        if (!validationResult.IsValid)
+            throw new InvalidDataException(message: validationResult.ToString());
+
+        var sortDefinition = state.SortDefinitions.FirstOrDefault();
+
+        if (sortDefinition != null)
+        {
+            queryParameters.SortBy = sortDefinition.SortBy;
+            queryParameters.Descending = sortDefinition.Descending;
+        }
+
+        return queryParameters;
+    }
+
+    private async Task OnClearButtonClick()
+    {
+        await ScriptGenerationService.ClearHistoryAsync();
+
+        if (_gridRef != null)
+            await _gridRef.ReloadServerData();
+
+        StateHasChanged();
+    }
+
+    private async Task OnRemoveItemButtonClick(ScriptGenerationHistory item)
+    {
+        await ScriptGenerationService.RemoveHistoryByIdAsync(item.Id);
+
+        if (_gridRef != null)
+            await _gridRef.ReloadServerData();
+
+        StateHasChanged();
+    }
+}

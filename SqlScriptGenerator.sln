@@ -13,6 +13,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlScriptGenerator.AppHost"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlScriptGenerator.ServiceDefaults", "SqlScriptGenerator.ServiceDefaults\SqlScriptGenerator.ServiceDefaults.csproj", "{8BE05E0E-A3DF-B4BC-35A3-754A06644019}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A08F7D29-A118-4E32-9FBA-512B4B469D48}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3CBA0EC8-7FD5-4545-99F3-877E83887DFB}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\generations_data.proto = Solution Items\generations_data.proto
+		Solution Items\generations_service.proto = Solution Items\generations_service.proto
+		Solution Items\script_file_builder.proto = Solution Items\script_file_builder.proto
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{273E09E4-CEA1-4E1D-9920-9A267309DDF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,9 +50,21 @@ Global
 		{8BE05E0E-A3DF-B4BC-35A3-754A06644019}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BE05E0E-A3DF-B4BC-35A3-754A06644019}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BE05E0E-A3DF-B4BC-35A3-754A06644019}.Release|Any CPU.Build.0 = Release|Any CPU
+		{273E09E4-CEA1-4E1D-9920-9A267309DDF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{273E09E4-CEA1-4E1D-9920-9A267309DDF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{273E09E4-CEA1-4E1D-9920-9A267309DDF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{273E09E4-CEA1-4E1D-9920-9A267309DDF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{485F32E0-DC42-4A3B-9B23-7948AC862C16} = {A08F7D29-A118-4E32-9FBA-512B4B469D48}
+		{642E2C0A-A9E2-4C24-A82C-09FBBADFC608} = {A08F7D29-A118-4E32-9FBA-512B4B469D48}
+		{B10A3C87-A00E-41ED-ADF6-76D185BDA172} = {A08F7D29-A118-4E32-9FBA-512B4B469D48}
+		{405DECE3-E71E-408A-AE26-64840EA27211} = {A08F7D29-A118-4E32-9FBA-512B4B469D48}
+		{8BE05E0E-A3DF-B4BC-35A3-754A06644019} = {A08F7D29-A118-4E32-9FBA-512B4B469D48}
+		{273E09E4-CEA1-4E1D-9920-9A267309DDF1} = {A08F7D29-A118-4E32-9FBA-512B4B469D48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {91D2AA5A-95B0-4AAE-BE06-C622CF77A589}

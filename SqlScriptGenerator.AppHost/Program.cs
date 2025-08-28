@@ -15,8 +15,13 @@ var service = builder.AddProject<Projects.Service>("apiservice")
     .WithExternalHttpEndpoints()
     .WithReference(dataProvider);
 
-var storefront = builder.AddProject<Projects.Storefront>("frontend")
+var storefront = builder.AddProject<Projects.Storefront>("storefront")
     .WithExternalHttpEndpoints()
     .WithReference(service);
+
+var frontend = builder.AddProject<Projects.Frontend>("frontend")
+    .WithExternalHttpEndpoints()
+    .WithReference(storefront)
+    .WaitFor(storefront);
 
 await builder.Build().RunAsync();

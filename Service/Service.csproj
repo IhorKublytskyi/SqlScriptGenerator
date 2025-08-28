@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 	<ItemGroup>
-		<Protobuf Include="Protos\ScriptFileBuilder.proto" GrpcServices="Server" />
-		<Protobuf Include="Protos\ScriptGenerationHistoriesRepository.proto" GrpcServices="Client" />
-		<Protobuf Include="Protos\ScriptGenerationHistoriesService.proto" GrpcServices="Server" />
+		<Protobuf Include="..\Solution Items\script_file_builder.proto" GrpcServices="Server"/>		
+		<Protobuf Include="..\Solution Items\generations_service.proto" GrpcServices="Server" />
+		<Protobuf Include="..\Solution Items\generations_data.proto" GrpcServices="Client" />
 	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.3" />

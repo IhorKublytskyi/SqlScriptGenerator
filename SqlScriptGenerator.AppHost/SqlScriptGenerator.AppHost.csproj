@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataProvider\DataProvider.csproj" />
+    <ProjectReference Include="..\Frontend\Frontend.csproj" />
     <ProjectReference Include="..\Service\Service.csproj" />
     <ProjectReference Include="..\Storefront\Storefront.csproj" />
   </ItemGroup>
